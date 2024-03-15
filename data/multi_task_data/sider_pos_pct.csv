@@ -1,0 +1,28 @@
+endpoint,pos_pct,num_mols
+Product issues,2.0,1427
+"Pregnancy, puerperium and perinatal conditions",9.0,1427
+Surgical and medical procedures,15.0,1427
+"Congenital, familial and genetic disorders",18.0,1427
+Social circumstances,18.0,1427
+Endocrine disorders,23.0,1427
+"Neoplasms benign, malignant and unspecified (incl cysts and polyps)",26.0,1427
+Ear and labyrinth disorders,46.0,1427
+Reproductive system and breast disorders,51.0,1427
+Hepatobiliary disorders,52.0,1427
+Eye disorders,61.0,1427
+Blood and lymphatic system disorders,62.0,1427
+Renal and urinary disorders,64.0,1427
+"Injury, poisoning and procedural complications",66.0,1427
+Cardiac disorders,69.0,1427
+Metabolism and nutrition disorders,70.0,1427
+Infections and infestations,70.0,1427
+Musculoskeletal and connective tissue disorders,70.0,1427
+Psychiatric disorders,71.0,1427
+Immune system disorders,72.0,1427
+"Respiratory, thoracic and mediastinal disorders",74.0,1427
+Vascular disorders,78.0,1427
+Investigations,81.0,1427
+Nervous system disorders,91.0,1427
+General disorders and administration site conditions,91.0,1427
+Gastrointestinal disorders,91.0,1427
+Skin and subcutaneous tissue disorders,92.0,1427

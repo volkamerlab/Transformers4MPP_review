@@ -1,0 +1,8 @@
+model,VS,VS_SD
+MolBERT,0.707,0.059
+w/o SMILES-Eq,0.74,0.066
+w/o PhysChemPred,0.493,0.068
+w/o MLM,0.514,0.165
+MLM only,0.676,0.06
+PhyChemPred Only,0.716,0.061
+SMILES-Eq only,0.508,0.068
