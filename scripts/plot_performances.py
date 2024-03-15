@@ -200,7 +200,6 @@ def plot_molformer_by_size(data_path: str):
     fig.suptitle(fig_title, fontsize=20)
     plt.subplots_adjust(top=0.8, wspace=0.5)
     plt.savefig(os.path.join(data_path, f'{fig_name}.png'), dpi=600, bbox_inches='tight')
-    plt.show()
 
 
 def plot_chemberta_2(data_path: str):
@@ -225,7 +224,6 @@ def plot_chemberta_2(data_path: str):
     fig.suptitle(f'{fig_title}\nClassification (↑)', fontsize=20)
     plt.subplots_adjust(top=0.75, wspace=0.2)
     plt.savefig(os.path.join(data_path, f'{fig_name}.png'), dpi=600, bbox_inches='tight')
-    plt.show()
 
 
 def plot_performance_by_representation_or_objectives(data_path: str,
@@ -295,8 +293,8 @@ def plot_performance_by_representation_or_objectives(data_path: str,
     ds_s = [ds for ds in data.columns.to_list() if not ds.endswith(f'{stats}')]
     models = data.index.to_list()
 
-    cmap = colormaps.get_cmap("tab20")
-    models_colors = {model: cmap(i+1) for i, model in enumerate(models)}
+    cmap = colormaps.get_cmap("tab10")
+    models_colors = {model: cmap(i) for i, model in enumerate(models)}
 
     fig, axs = plt.subplots(nrows, ncols, figsize=figsize, sharey=sharey)
 

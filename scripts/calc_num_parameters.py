@@ -43,7 +43,7 @@ def calc_model_params(d_model, n_layers, enc: bool = True, autoreg: bool = False
     biases_second_layer = d_model
     ffn = (weights_first_layer + biases_first_layer) + (weights_second_layer + biases_second_layer)
 
-    # An encoder layer consists of one MHA, two add & norm, and one FFN. The same is tru for an autoregressive model.
+    # An encoder layer consists of one MHA, two add & norm, and one FFN. The same is true for an autoregressive model.
     encoder_params = multi_head_attn + (2 * add_n_norm) + ffn
 
     # A decoder layer consists of two attention modules, three add & norm, and one ffn.
