@@ -1,0 +1,10 @@
+Transformer_model,model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓),reporting
+ST,ECFP (logistic/ridge regression),0.99,1.74,0.799,reimplemented
+MAT,SVM,0.478,0.461,,reimplemented
+MAT,RF,0.534,0.523,,reimplemented
+MolBERT,RDKit(norm) (physchem descriptors) + SVM,0.687,1.671,0.738,reimplemented
+MolBERT,ECFC4 + SVM,0.902,2.876,0.77,reimplemented
+ChemFormer,SVR ((2048-bit morgan FP) (radius 2),1.031,2.107,0.746,copied
+ChemBERTa-2,RF (2048-bit morgan FP),,,0.9621,reimplemented
+RT,RF,1.16,2.12,0.78,copied
+RT,XGBoost,1.05,1.76,0.84,copied

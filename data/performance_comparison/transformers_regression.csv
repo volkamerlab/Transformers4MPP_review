@@ -1,0 +1,10 @@
+model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓)
+ST + (MLP/L2/LightGBM),0.720,1.650,0.921
+MAT,0.285,0.263
+RT + fine-tuning,0.690,1.030,0.740
+MolBERT + NN (fine-tune),0.531,0.948,0.561
+SELFormer (ours),0.386,1.005,0.674
+FP-BERT (10 M),0.670,1.070,0.670
+ChemFormer (Combined),0.633,1.230,0.598
+MolFormer -XL,0.279,0.231,0.529
+X-Mol,0.578,1.108,0.596
