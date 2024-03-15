@@ -26,11 +26,13 @@ To reproduce the figures and the tables, simply run
 python3 main.py
 ```
 The `main.py` file calls the corresponding functions from the `scripts` folder. These functions access their data 
-from the `data`folder. The figures and tables will be saved to the locations as shown in the printed messages after 
+from the `data` folder. The figures and tables will be saved to the locations as shown in the printed messages after 
 excution.
+
+You can also check the `reproduce_figures.ipynb` file for visualising the figures directly.
 
 ## Supplementary info
 
-In table xx, we mention that some of the information are extracted from the provided code of the papers as the info was 
+In table 6, we mention that some of the information are extracted from the provided code of the papers as the info was 
 not stated in the original manuscript. The `permalink` for each of these values are provided at the 
 `data/num_parameters/info_extracted_from_code.csv`file.
