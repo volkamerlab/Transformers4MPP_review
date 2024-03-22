@@ -50,8 +50,7 @@ def plot_performance_ranges(transformers: dict,
 
     fig, axs = plt.subplots(nrows, ncols, figsize=(width, height))
 
-    model_marks_comparable = {'ST': 'o',
-                              'MAT': '^', 'MolBERT': 's', 'Mol-BERT': 'P',
+    model_marks_comparable = {'MAT': '^', 'MolBERT': 's', 'Mol-BERT': 'P',
                               'ChemBERTa': 'X', 'ChemBERTa-2': 'D'}
     model_marks_all = {'ST': 'o', 'X-Mol': '>', 'ChemFormer': '<',
                        'MAT': '^', 'MolBERT': 's', 'Mol-BERT': 'P', 'FP-BERT': '*', 'MolFormer': 'v',
@@ -118,22 +117,30 @@ def plot_performance_ranges(transformers: dict,
             # values
             min_vals = min_vals.min(axis=1)
             max_vals = max_vals.max(axis=1)
-            for j, val in enumerate(min_vals):
+            for j in range(len(min_vals)):
+                min_val = min_vals.iloc[j]
+                max_val = max_vals.iloc[j]
                 hline_length = 0.2
                 linewidth = 2
-
-                ax.hlines(val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
-                          linewidth=linewidth)
-                ax.hlines(max_vals.iloc[j], j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
-                          linewidth=linewidth)
-
                 if category == 'classification':
                     shift = 0.01
                 else:
                     shift = 0.02
-                ax.text(j, val - shift, f'{val:.2f}', ha='center', va='top', fontsize=10, color='k')
-                ax.text(j, max_vals.iloc[j] + 0.01, f'{max_vals.iloc[j]:.2f}', ha='center', va='bottom', fontsize=10,
-                        color='k')
+
+                if min_val == max_val:
+                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                              linewidth=linewidth)
+                    ax.text(j, max_val + 0.01, f'{max_val:.2f}', ha='center', va='bottom',
+                            fontsize=10,
+                            color='k')
+                else:
+                    ax.hlines(min_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                              linewidth=linewidth)
+                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                              linewidth=linewidth)
+                    ax.text(j, min_val - shift, f'{min_val:.2f}', ha='center', va='top', fontsize=10, color='k')
+                    ax.text(j, max_val + 0.01, f'{max_val:.2f}', ha='center', va='bottom', fontsize=10,
+                            color='k')
 
             # remove x ticks as they will be replaced by the first legend
             ax.set_xticks([])
@@ -168,8 +175,7 @@ def plot_molformer_by_size(data_path: str):
     This function outputs a figure for the performance of MolFormer's different models on the regression and
     classification datasets. The models were trained with different weighted combinations of ZINC and ChEMBL.
     :param data_path: the path for the data files
-    :param sorting_col: the column to sort the models by (it's the size column here)
-    :return:
+    :return: this function saves the plotted figure into the specified data_path
     """
     sorting_col = 'size (B)'
     molformer_classification = pd.read_csv(os.path.join(data_path, f'molformer_classification.csv'),
@@ -205,6 +211,8 @@ def plot_molformer_by_size(data_path: str):
 def plot_chemberta_2(data_path: str):
     df = pd.read_csv(os.path.join(data_path, 'chemBERTa-2.csv'), index_col=0)
     fig, axs = plt.subplots(1, 4, figsize=(15, 4))
+    handles = None
+    legends = None
     for i, col in enumerate(df.columns[1:]):
         ax = axs[i]
         if i == 0:
@@ -214,10 +222,14 @@ def plot_chemberta_2(data_path: str):
         mlm = df[df['objective'] == 'MLM'][col].round(3)
         mtr = df[df['objective'] == 'MTR'][col].round(3)
 
-        mlm.plot(ax=ax, marker='o')
-        mtr.plot(ax=ax, marker='o')
+        mlm.plot(ax=ax, marker='o', label='MLM')
+        mtr.plot(ax=ax, marker='o', label='MTR')
 
-        ax.legend(['MLM', 'MTR'])
+        if i == 0:
+            handles, legends = ax.get_legend_handles_labels()
+        # ax.legend(['MLM', 'MTR'])
+
+    fig.legend(handles, legends, loc='center right', fontsize=16, bbox_to_anchor=(1.01, 0.5))
 
     fig_title = 'ChemBERTa-2 Performance by Pre-Train Dataset Size'
     fig_name = fig_title.lower().replace(' ', '_').replace('-', '')
