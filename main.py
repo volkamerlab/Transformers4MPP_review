@@ -103,8 +103,8 @@ def generate_supp_tables_11_12_n_13():
 
 
 if __name__ == '__main__':
-    d_path = generate_figure_2_and_supp_figure_7()
-    print(f'Figures 2 and supplementary figure 7 are saved to {d_path}')
+    # d_path = generate_figure_2_and_supp_figure_7()
+    # print(f'Figures 2 and supplementary figure 7 are saved to {d_path}')
     d_path = generate_figure_4()
     print(f'Individual subfigures of figure 4 are saved to {d_path}')
     d_path = generate_figure_5()

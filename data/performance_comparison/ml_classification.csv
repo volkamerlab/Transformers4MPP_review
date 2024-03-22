@@ -1,12 +1,12 @@
 model_name,ml,BBBP(↑),HIV(↑),BACE(↑),Tox21(↑),ClinTox(↑),SIDER(↑),reporting
-ST,ECFP (logistic/ridge regression),0.729,0.792,0.867,0.822,0.799,,reimplemented
-MAT,SVM,0.707,,,,,,reimplemented
-MAT,RF,0.725,,,,,,reimplemented
-ChemBERTa,RF (2048-bit morgan FP),0.681,0.78,,,,,reimplemented
-ChemBERTa,SVM (2048-bit morgan FP),0.702,0.763,,,,,reimplemented
-MolBERT,RDKit(norm) (physchem descriptors) + SVM,0.696,0.708,0.831,,,,reimplemented
-MolBERT,ECFC4 + SVM,0.678,0.714,0.845,,,,reimplemented
-Mol-BERT,ECFP,0.702,,,0.81,0.783,0.673,copied
-ChemBERTa-2,RF (2048-bit morgan FP),0.7194,,0.8507,0.724,0.7829,,copied
-MolFormer,RF,0.714,0.781,0.867,0.769,0.713,0.684,copied
-MolFormer,SVM,0.729,0.792,0.862,0.818,0.669,0.682,copied
+ST,ECFP + MLP,0.729,0.792,0.867,0.822,0.799,,copied
+MAT,ECFP + SVM,0.707,,,,,,reimplemented
+MAT,ECFP + RF,0.725,,,,,,reimplemented
+ChemBERTa,Morgan FP + RF,0.681,0.78,,,,,reimplemented
+ChemBERTa,Morgan FP + SVM,0.702,0.763,,,,,reimplemented
+MolBERT,RDKit PhysChem descriptors + SVM,0.696,0.708,0.831,,,,reimplemented
+MolBERT,ECFP + SVM,0.678,0.714,0.845,,,,reimplemented
+Mol-BERT,ECFP + ?,0.702,,,0.81,0.783,0.673,copied
+ChemBERTa-2,Morgan FP + RF (2048-bit morgan FP),0.7194,,0.8507,0.724,0.7829,,reimplemented
+MolFormer,? + RF,0.714,0.781,0.867,0.769,0.713,0.684,copied
+MolFormer,? + SVM,0.729,0.792,0.862,0.818,0.669,0.682,copied

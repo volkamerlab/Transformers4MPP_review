@@ -1,6 +1,6 @@
 Transformer_model,model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓),reporting
-ST,GraphConv,0.97,1.4,0.655,reimplemented
-ST,Weave,0.61,1.22,0.715,reimplemented
+ST,GraphConv,0.97,1.4,0.655,copied
+ST,Weave,0.61,1.22,0.715,copied
 MAT,GCN,0.357,0.271,,reimplemented
 MAT,WEAVE,0.311,0.311,,reimplemented
 MAT,EAGCN,0.316,0.345,,reimplemented
