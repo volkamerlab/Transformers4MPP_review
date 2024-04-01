@@ -1,16 +1,18 @@
 model,model_params(M),embed_params (K),all_params(M)
 ST,7.0,,
 Mol-BERT,7.0,3998.0,11.0
+Transformer_CNN,22.0,34.0,22.0
+Chen et al,25.0,26.0,25.0
 RT,25.0,130.0,25.0
-ChemBERTa,43.0,39936.0,83.0
-K-BERT,43.0,36.0,43.0
-ChemBERTa-2,43.0,454.0,43.0
 MolFormer-Small,43.0,1814.0,44.0
+ChemBERTa-2,43.0,454.0,43.0
+K-BERT,43.0,36.0,43.0
+ChemBERTa,43.0,39936.0,83.0
 ChemFormer,44.0,268.0,45.0
 SELFormer-Lite,57.0,614.0,57.0
 SMILES-BERT,76.0,,
-MolBERT,85.0,32.0,85.0
 X-Mol,85.0,86.0,86.0
+MolBERT,85.0,32.0,85.0
 MolFormer-XL,85.0,1814.0,87.0
 SELFormer,85.0,614.0,86.0
 MAT,101.0,,

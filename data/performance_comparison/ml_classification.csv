@@ -7,6 +7,6 @@ ChemBERTa,Morgan FP + SVM,0.702,0.763,,,,,reimplemented
 MolBERT,RDKit PhysChem descriptors + SVM,0.696,0.708,0.831,,,,reimplemented
 MolBERT,ECFP + SVM,0.678,0.714,0.845,,,,reimplemented
 Mol-BERT,ECFP + ?,0.702,,,0.81,0.783,0.673,copied
-ChemBERTa-2,Morgan FP + RF (2048-bit morgan FP),0.7194,,0.8507,0.724,0.7829,,reimplemented
+ChemBERTa-2,Morgan FP + RF,0.7194,,0.8507,,0.7829,,reimplemented
 MolFormer,? + RF,0.714,0.781,0.867,0.769,0.713,0.684,copied
 MolFormer,? + SVM,0.729,0.792,0.862,0.818,0.669,0.682,copied
