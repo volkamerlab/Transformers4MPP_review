@@ -1,14 +1,14 @@
 Transformer_model,model_name,BBBP(↑),HIV(↑),BACE(↑),Tox21(↑),ClinTox(↑),SIDER(↑),reporting
 ST,GraphConv,0.69,0.763,0.783,0.829,0.807,,copied
 ST,Weave,0.671,0.703,0.806,0.82,0.832,,copied
-ChemBERTa,D-MPNN,0.708,0.752,,0.688,0.906,,reimplemented
+ChemBERTa,D-MPNN,0.708,0.752,,,,,reimplemented
 MolBERT,CDDD + SVM,0.761,0.753,0.833,,,,reimplemented
 Mol-BERT,GraphCov,0.877,,,0.772,0.845,0.593,copied
 Mol-BERT,Weave,0.837,,,0.741,0.823,0.543,copied
 Mol-BERT,MPNN,0.913,,,0.808,0.879,0.595,reimplemented
 Mol-BERT,FP2VEC,0.874,,,0.73,0.643,0.582,copied
-ChemBERTa-2,D-MPNN,0.697,,0.812,0.719,0.906,,reimplemented
-ChemBERTa-2,GCN,0.676,,0.818,0.688,0.907,,reimplemented
+ChemBERTa-2,D-MPNN,0.697,,0.812,,0.906,,reimplemented
+ChemBERTa-2,GCN,0.676,,0.818,,0.907,,reimplemented
 MAT,GCN,0.712,,,,,,reimplemented
 MAT,WEAVE,0.701,,,,,,reimplemented
 MAT,EAGCN,0.68,,,,,,reimplemented

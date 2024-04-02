@@ -8,3 +8,4 @@ FP-BERT (10 M),0.670,1.070,0.670
 ChemFormer (Combined),0.633,1.230,0.598
 MolFormer -XL,0.279,0.231,0.529
 X-Mol,0.578,1.108,0.596
+ChemBERTa-2,,,0.798

@@ -1,7 +1,8 @@
 import os
+
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 import seaborn as sns
 from matplotlib import colormaps
@@ -14,6 +15,7 @@ def plot_performance_ranges(transformers: dict,
                             ml: dict,
                             dl: dict,
                             data_path: str,
+                            models_colors: dict,
                             comparable_only: bool = True,
                             nrows: int = 3,
                             ncols: int = 3,
@@ -27,6 +29,7 @@ def plot_performance_ranges(transformers: dict,
     a point (average performance over multiple runs) of the corresponding model for the dataset is plotted. The
     classical ML and DL points are obtained from the corresponding articles (therefore, they are plotted using the same
     mark as the corresponding transformer model)
+    :param models_colors: a dictionary that assigns a color per model to use for plotting
     :param transformers: dictionary of two entries, classification and regression. each entry contains a pd.DataFrame
     of the performance of the transformer models on some datasets
     :param ml: dictionary of two entries, classification and regression. each entry contains a pd.DataFrame
@@ -50,124 +53,140 @@ def plot_performance_ranges(transformers: dict,
 
     fig, axs = plt.subplots(nrows, ncols, figsize=(width, height))
 
-    model_marks_comparable = {'MAT': '^', 'MolBERT': 's', 'Mol-BERT': 'P',
-                              'ChemBERTa': 'X', 'ChemBERTa-2': 'D'}
-    model_marks_all = {'ST': 'o', 'X-Mol': '>', 'ChemFormer': '<',
-                       'MAT': '^', 'MolBERT': 's', 'Mol-BERT': 'P', 'FP-BERT': '*', 'MolFormer': 'v',
-                       'ChemBERTa': 'X', 'ChemBERTa-2': 'D', 'SELFormer': 'p', 'RT': '.'}
-
     if comparable_only:
-        model_marks = model_marks_comparable
         fig_name = f'{fig_name}_honest'
-    else:
-        model_marks = model_marks_all
-
-    first_legend = ['Transformers $^1$', 'Classical Machine Learning $^2$', 'Deep Learning $^3$']
-    second_legend = [Line2D([0], [0], marker=mark, label=mod, lw=0) for mod, mark in model_marks.items()]
-
-    # colors for the first legend
-    pastel_palette = sns.color_palette("pastel")
-    colors = [pastel_palette[4], pastel_palette[2], pastel_palette[0]]
 
     # starting plotting
     cur_row = 0
     cur_col = 0
     to_next_row = False
-    for category, df in transformers.items():  # loop over classification and regression categories
-        if category == 'classification':
+    for ml_task, df in transformers.items():  # loop over classification and regression tasks
+        if ml_task == 'classification':
             ylabel = 'ROC-AUC'
         else:
             ylabel = 'RMSE'
 
-        for ds_name in df.columns:  # loop over datasets in each category
+        # loop over datasets in each category. Last column is the categorical 'source_transformer'
+        for ds_name in df.columns[0:-1]:
             ax, cur_row, cur_col, to_next_row = process_ax(nrows, ncols, cur_row, cur_col, to_next_row, axs, ylabel)
 
-            transformers_ds = transformers[category][ds_name]
-            ml_ds = ml[category][ds_name]
-            dl_ds = dl[category][ds_name]
+            # extract the values for the corresponding dataset
+            transformers_ds = transformers[ml_task][ds_name]
+            ml_ds = ml[ml_task][ds_name]
+            dl_ds = dl[ml_task][ds_name]
+
+            # identifying the transformer models that were tested for this dataset AND compared against ML/DL models
+            source_transformers = transformers[ml_task].loc[transformers_ds.index, 'source_transformer'].to_list()
+            source_transformers.extend(ml[ml_task].loc[ml_ds.index, 'source_transformer'])
+            source_transformers.extend(dl[ml_task].loc[dl_ds.index, 'source_transformer'])
 
             # creat a dataframe with the selected columns from the different dataframes and prefix the col name with the
-            # dataframe it came from
+            # model category it came from
+            model_categories = [f'Transformers {ds_name}', f'ML {ds_name}', f'DL {ds_name}']
             df = pd.concat([transformers_ds, ml_ds, dl_ds], axis=1)
-            df.columns = [f'Transformers {ds_name}', f'ML {ds_name}', f'DL {ds_name}']
-            palette = {col: color for col, color in zip(df.columns, colors)}
+            df.columns = model_categories
+            df['source_transformer'] = source_transformers
 
-            # collect the min and max values for each dataset
-            min_vals = []
-            max_vals = []
-            for model, mark in model_marks.items():  # plot datapoints per model to assign the right mark to it.
-                subset = [idx for idx in df.index if idx.startswith(model)]
+            # models_colors are defined w.r.t the transformer models that performed ML/DL comparison. Therefore,
+            # for Figure 2, the transformer models with no comparable ML/DL models are removed from the
+            # plot
+            df = df[df['source_transformer'].isin(list(models_colors.keys()))]
 
-                # plot corresponding ML and DL models only for transformer models that reported performance on this
-                # dataset. This condition is needed cuz we select the models by checking if they start with the model
-                # name. However, ChmemBERTa and ChemBERTa-2 have the same start, therefore, they can be intermingled.
-                if len(subset) != 0 and not pd.isnull(df.loc[subset[0], df.columns[0]]):
-                    new_df = df.loc[subset, :]
-                    new_df_min = new_df.min()
-                    new_df_max = new_df.max()
-                    if len(min_vals) == 0:
-                        min_vals = new_df_min.to_frame()
-                        max_vals = new_df_max.to_frame()
-                    else:
-                        min_vals = pd.concat([min_vals, new_df_min], axis=1)
-                        max_vals = pd.concat([max_vals, new_df_max], axis=1)
-                    sns.stripplot(data=new_df, ax=ax, palette=palette, marker=mark, edgecolor='black')
+            # the current frame is wide (i.e., the metric is reported per category in an independent column). The melt
+            # function aggregates all categories into one column and the corresponding metric into another column
+            # (i.e., long format). seaborn's stripplot function requires the data to be in a long format when the 'hue'
+            # argument is used.
+            df = df.melt('source_transformer', var_name='category', value_name='metric', ignore_index=False).dropna()
 
-            # highlight the min and max values for each dataset by a horizontal line and note down the corresponding
-            # values
-            min_vals = min_vals.min(axis=1)
-            max_vals = max_vals.max(axis=1)
+            # seaborn.stripplot gets crazy when multiple indices with NA are present. So, the NA values were dropped
+            # from df, and in the below, we re-add a NA value when a model category is missing (e.g., transformers, ML,
+            # or DL). By ensuring the presence of all categories, we ensure that each column will be plotted in the same
+            # place in the subplots.
+            for model_category in model_categories:
+                if model_category not in df['category'].to_list():
+                    for curr_model in df['source_transformer'].unique().tolist():
+                        new_row = pd.DataFrame({f'{curr_model}_temp': [curr_model, model_category, None]}).transpose()
+                        new_row.columns = df.columns.to_list()
+                        df = pd.concat([df, new_row])
+
+            # sort the models' categories to ensure that they are plotted in the same place in each subplot
+            df.sort_values('category', ascending=False, inplace=True)
+
+            # The 'dodge' argument seperated the points from each model alongside the x-axis. When there are more than
+            # two models, this feature makes the plot's visibility better.
+            dodge = False
+            if len(df['source_transformer'].unique().tolist()) > 2:
+                dodge = True
+
+            # plot each model category in a separate column
+            sns.stripplot(data=df, x='category', y='metric', hue='source_transformer', ax=ax, edgecolor='black',
+                          linewidth=0.3, jitter=True, dodge=dodge, palette=models_colors)
+
+            # specifying the xtickslabels because seaborn only adds the xlabel. the xlabel is also removed because it is
+            # not that informative
+            labels = [label.split(' ')[0] for label in df['category'].unique().tolist()]
+            labels_pos = np.arange(len(labels))
+            ax.set(xticks=labels_pos, xlabel=None)
+            ax.set_xticklabels(labels, fontsize=14)
+            ax.legend().set_visible(False)
+
+            # seaborn forces the ylabel on the plots, but we already add the ylabel for the first subplot in each row
+            if cur_col - 1 != 0:
+                ax.set_ylabel(None)
+
+            # we used the melt function to convert wide frame to long. Here, the pivot function reverses the process. We
+            # do so to have each model category in a separate column again. Therefore, the min and max functions will be
+            # calculated for each column. We calculate the min and max for each category to add a dashed line at the min
+            # and max values in each column in the plot for easier comparison.
+            df = df.drop('source_transformer', axis=1).pivot(columns='category')['metric']
+            df = df.reindex(sorted(df.columns, reverse=True), axis=1)
+            min_vals = df.min()
+            max_vals = df.max()
+            hline_color = 'gainsboro'
+            hline_length = 0.3
+            linewidth = 2
+            if ml_task == 'classification':
+                shift = 0.01
+            else:
+                shift = 0.02
             for j in range(len(min_vals)):
                 min_val = min_vals.iloc[j]
                 max_val = max_vals.iloc[j]
-                hline_length = 0.2
-                linewidth = 2
-                if category == 'classification':
-                    shift = 0.01
-                else:
-                    shift = 0.02
-
                 if min_val == max_val:
-                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=hline_color, linestyles='--',
                               linewidth=linewidth)
-                    ax.text(j, max_val + 0.01, f'{max_val:.2f}', ha='center', va='bottom',
+                    ax.text(j, max_val + 0.01, f'{max_val:.3f}', ha='center', va='bottom',
                             fontsize=10,
                             color='k')
                 else:
-                    ax.hlines(min_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                    ax.hlines(min_val, j - hline_length, j + hline_length, colors=hline_color, linestyles='--',
                               linewidth=linewidth)
-                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=colors[j], linestyles='--',
+                    ax.hlines(max_val, j - hline_length, j + hline_length, colors=hline_color, linestyles='--',
                               linewidth=linewidth)
-                    ax.text(j, min_val - shift, f'{min_val:.2f}', ha='center', va='top', fontsize=10, color='k')
-                    ax.text(j, max_val + 0.01, f'{max_val:.2f}', ha='center', va='bottom', fontsize=10,
+                    ax.text(j, min_val - shift, f'{min_val:.3f}', ha='center', va='top', fontsize=10, color='k')
+                    ax.text(j, max_val + 0.01, f'{max_val:.3f}', ha='center', va='bottom', fontsize=10,
                             color='k')
-
-            # remove x ticks as they will be replaced by the first legend
-            ax.set_xticks([])
 
             # subplot title
             ax.set_title(ds_name, fontsize=16)
-            if category == 'classification':
+            if ml_task == 'classification':
                 ax.set_ylim(.5, 1)
             else:
-                ax.set_ylim(ax.get_ylim()[0] - 0.5, ax.get_ylim()[1] + 0.5)
+                ax.set_ylim(0, ax.get_ylim()[1] + 0.5)
 
-    # add the figure legends
-    handles = []
-    for label, color in zip(first_legend, colors):
-        handles.append(mpatches.Patch(color=color, label=label))
-    fig.legend(handles=handles, labels=first_legend, loc='lower center', fontsize=16,
-               ncol=ncols, bbox_to_anchor=(0.5, 0), bbox_transform=fig.transFigure)
-
-    fig.legend(handles=second_legend, loc='center right', fontsize=16, bbox_to_anchor=(1, 0.5))
+    legend = [Line2D([0], [0], marker='o', color=mark, label=mod, lw=0)
+              for mod, mark in models_colors.items()]
+    fig.legend(handles=legend, loc='center right', fontsize=16, bbox_to_anchor=(1, 0.5))
 
     # adjust empty spaces around the figure
-    plt.subplots_adjust(right=0.85, left=0.05, bottom=0.07, top=0.9)
+    plt.subplots_adjust(right=0.85, left=0.05, bottom=0.05, top=0.9, hspace=0.3)
 
     # Figure title
     fig.suptitle(title, fontsize=20)
 
     plt.savefig(os.path.join(data_path, f'{fig_name}.png'), dpi=600, bbox_inches='tight')
+
+    plt.show()
 
 
 def plot_molformer_by_size(data_path: str):

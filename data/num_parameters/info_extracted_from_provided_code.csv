@@ -1,7 +1,8 @@
-,Max Vocab Size,Max sequence length
+,Max Vocab Size,Max sequence length, Positional Encoding
 ST,https://github.com/DSPsleeporg/smiles-transformer/blob/7ffa26e5bc68db0292164466398ff2edfa4a0f62/smiles_transformer/build_vocab.py#L160C33-L160C33,https://github.com/DSPsleeporg/smiles-transformer/blob/7ffa26e5bc68db0292164466398ff2edfa4a0f62/smiles_transformer/pretrain_trfm.py#L101C32-L101C32
 X-Mol,https://github.com/bm2-lab/X-MOL/blob/a64cd4222ab819326767224d91fa8605f52f4fc4/FT_to_prediction/pt_conf.sh#L56,https://github.com/bm2-lab/X-MOL/blob/a64cd4222ab819326767224d91fa8605f52f4fc4/FT_to_prediction/pt_conf.sh#L55C1-L55C1
-Mol-BERT,,https://github.com/cxfjiang/MolBERT/blob/df7c23a215fd1cc49896c2079c012591d4dc2a88/pretraining/BERT_training_v4.py#L25
+Mol-BERT,,https://github.com/cxfjiang/MolBERT/blob/df7c23a215fd1cc49896c2079c012591d4dc2a88/pretraining/BERT_training_v4.py#L25,https://github.com/cxfjiang/MolBERT/blob/df7c23a215fd1cc49896c2079c012591d4dc2a88/pretraining/BERT_training_v4.py#L112
 ChemFormer,,https://github.com/MolecularAI/Chemformer/blob/0ca3c1b5f810a0ff106bbb846f511629eac3b4a5/molbart/util.py#L27C15-L27C15
 FP-BERT,,https://github.com/fanganpai/fp2bert/blob/1e768122d89fb1586884475de9950e93965a222c/pre-trained/EIECTRA-train.py#L69
 SELFormer,https://github.com/HUBioDataLab/SELFormer/blob/3fb44282a8c07af2acfd44cb90f67ed7cfe2c674/data/pretraining_hyperparameters.yml#L35,https://github.com/HUBioDataLab/SELFormer/blob/3fb44282a8c07af2acfd44cb90f67ed7cfe2c674/data/pretraining_hyperparameters.yml#L34
+Transformer-CNN,,,https://github.com/bigchem/transformer-cnn/blob/7009a997e9fe626913e7e28030d3e92e0eeba818/layers.py#L6
