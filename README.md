@@ -3,6 +3,9 @@
 This repo provides the data and the code used to generate the figures and tables in the corresponding review article:
 * [Arxiv](https://arxiv.org/abs/2404.03969)
 
+![pipeline](pipeline_n_qs.png)
+
+
 ## Project requirement
 The project is compatible with Python version >= 3.11, and the packages are managed by `poetry`. So, you need to have 
 `poetry` installed on your device. You can do so by running this command
