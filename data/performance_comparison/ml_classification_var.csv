@@ -1,0 +1,3 @@
+model_name,ml,BBBP(↑),HIV(↑),BACE(↑),Tox21(↑),ClinTox(↑),SIDER(↑),method
+MAT,ECFP + SVM,0.0,,,,,,sd
+MAT,ECFP + RF,0.006,,,,,,sd

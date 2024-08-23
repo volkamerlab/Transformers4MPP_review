@@ -1,0 +1,5 @@
+Transformer_model,model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓),method
+MAT,GCN,0.032,0.048,,sd
+MAT,WEAVE,0.023,0.072,,sd
+MAT,EAGCN,0.024,0.051,,sd
+MolBERT,CDDD + SVM,0.06,0.43,0.02,sd

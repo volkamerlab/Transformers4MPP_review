@@ -3,7 +3,7 @@ import pandas as pd
 
 from scripts.calc_num_parameters import process_data
 from scripts.calc_positive_pct_per_task import calculate_pct_positive_class
-from scripts.plot_performances import plot_performance_ranges, plot_molformer_by_size, plot_chemberta_2, \
+from scripts.plot_performances import plot_performance_ranges, plot_performance_ranges_per_model, plot_molformer_by_size, plot_chemberta_2, \
     plot_performance_by_representation_or_objectives
 
 
@@ -11,15 +11,19 @@ def generate_figure_2_and_supp_figure_7():
     data_path = os.path.join('data', 'performance_comparison')
     source_reimplemented = set()
     source_all = set()
-    transformers_dict = {}
+    transformers_dict_comparable = {}
     ml_dict_comparable = {}
     dl_dict_comparable = {}
+    transformers_dict_all = {}
     ml_dict_all = {}
     dl_dict_all = {}
     for suffix in ['classification', 'regression']:
         transformers_performance = pd.read_csv(os.path.join(data_path, f'transformers_{suffix}.csv'), index_col=0)
         ml_performance = pd.read_csv(os.path.join(data_path, f'ml_{suffix}.csv'), index_col=0)
         dl_performance = pd.read_csv(os.path.join(data_path, f'dl_{suffix}.csv'), index_col=0)
+        transformers_var = pd.read_csv(os.path.join(data_path, f'transformers_{suffix}_var.csv'), index_col=0)
+        ml_var = pd.read_csv(os.path.join(data_path, f'ml_{suffix}_var.csv'), index_col=0)
+        dl_var = pd.read_csv(os.path.join(data_path, f'dl_{suffix}_var.csv'), index_col=0)
 
         # The ml/dl models are copied from the transformer articles. Therefore, the first col corresponds to the
         # transformer model name and the second col corresponds to the ml/dl model name. In the below lines,
@@ -31,8 +35,9 @@ def generate_figure_2_and_supp_figure_7():
 
         ml_performance.index = ml_performance.index + '_' + ml_performance.iloc[:, 0]
         dl_performance.index = dl_performance.index + '_' + dl_performance.iloc[:, 0]
+        ml_var.index = ml_var.index + '_' + ml_var.iloc[:, 0]
+        dl_var.index = dl_var.index + '_' + dl_var.iloc[:, 0]
 
-        transformers_dict[suffix] = transformers_performance
 
         # data for figure 2
         ml_performance_comparable = (ml_performance[ml_performance['reporting'] != 'copied']
@@ -41,9 +46,13 @@ def generate_figure_2_and_supp_figure_7():
                                      .drop([dl_performance.columns[0], 'reporting'], axis=1))
         source_reimplemented.update(ml_performance_comparable['source_transformer'].to_list())
         source_reimplemented.update(dl_performance_comparable['source_transformer'].to_list())
+        transformers_comparable = transformers_performance[
+            transformers_performance['source_transformer'].isin(source_reimplemented)
+        ]
 
-        ml_dict_comparable[suffix] = ml_performance_comparable
-        dl_dict_comparable[suffix] = dl_performance_comparable
+        transformers_dict_comparable[suffix] = (transformers_comparable, transformers_var)
+        ml_dict_comparable[suffix] = (ml_performance_comparable, ml_var)
+        dl_dict_comparable[suffix] = (dl_performance_comparable, dl_var)
 
         # data for supplementary figure 7
         ml_performance_all = (ml_performance.drop([ml_performance.columns[0], 'reporting'], axis=1))
@@ -51,8 +60,9 @@ def generate_figure_2_and_supp_figure_7():
         source_all.update(ml_performance_all['source_transformer'].to_list())
         source_all.update(dl_performance_all['source_transformer'].to_list())
 
-        ml_dict_all[suffix] = ml_performance_all
-        dl_dict_all[suffix] = dl_performance_all
+        transformers_dict_all[suffix] = (transformers_performance, None)
+        ml_dict_all[suffix] = (ml_performance_all, None)
+        dl_dict_all[suffix] = (dl_performance_all, None)
 
     # assigning a color per model for plotting
     colors = ['#f0e442', '#009e73', 'rosybrown', '#0072b2', 'orange', '#0072b2', '#cc79a7', 'deepskyblue', 'magenta',
@@ -61,11 +71,11 @@ def generate_figure_2_and_supp_figure_7():
     models_colors_comparable = {model: models_colors_all[model] for model in sorted(source_reimplemented)}
 
     # Plot figure 2
-    plot_performance_ranges(transformers_dict, ml_dict_comparable, dl_dict_comparable, data_path,
-                            models_colors_comparable, comparable_only=True)
+    plot_performance_ranges_per_model(transformers_dict_comparable, ml_dict_comparable, dl_dict_comparable, data_path,
+                                      comparable_only=True)
 
     # Plot supplementary figure 7
-    plot_performance_ranges(transformers_dict, ml_dict_all, dl_dict_all, data_path, models_colors_all,
+    plot_performance_ranges(transformers_dict_all, ml_dict_all, dl_dict_all, data_path, models_colors_all,
                             comparable_only=False)
     return data_path
 

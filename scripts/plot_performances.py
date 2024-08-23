@@ -4,11 +4,170 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
 import seaborn as sns
 from matplotlib import colormaps
 from matplotlib.ticker import FormatStrFormatter
 
 from .utils import process_ax, specify_x_positions_for_points
+
+
+def plot_performance_ranges_per_model(transformers: dict,
+                                      ml: dict,
+                                      dl: dict,
+                                      data_path: str,
+                                      comparable_only: bool = True,
+                                      nrows: int = 3,
+                                      ncols: int = 3,
+                                      width: int = 17,
+                                      height: int = 12,
+                                      title: str = 'Performance Ranges From the Reviewed Articles',
+                                      fig_name: str = 'performance_ranges'):
+    """
+    This function outputs a plot for each dataset in classification and regression tasks. The plot contains three
+    entries, transformer models, classical machine learning (ML) models and deep learning (DL) models. in each entry,
+    a point (average performance over multiple runs) of the corresponding model for the dataset is plotted. The
+    classical ML and DL points are obtained from the corresponding articles (therefore, they are plotted using the same
+    mark as the corresponding transformer model)
+    :param transformers: dictionary of two entries, classification and regression. each entry contains a pd.DataFrame
+    of the performance of the transformer models on some datasets
+    :param ml: dictionary of two entries, classification and regression. each entry contains a pd.DataFrame
+    of the performance of the classical ML models on some datasets. These values are obtained from the corresponding
+    transformer models.
+    :param dl: dictionary of two entries, classification and regression. each entry contains a pd.DataFrame
+    of the performance of the DL models on some datasets. These values are obtained from the corresponding
+    transformer models.
+    :param data_path: the path of the performance files
+    :param comparable_only: a flag to specify which figure to output, the ML and DL models that are guaranteed to be
+    tested on the same test set in the corresponding transformer model, or all transformer models with all their
+    reported values.
+    :param nrows: number of rows in the figure
+    :param ncols: number of columns in the figure
+    :param width: the figure's width
+    :param height:the figure's height
+    :param title: the figure's title
+    :param fig_name: the figure's name to be saved
+    :return: the functions saves a figure of the performance
+    """
+
+    tasks_palettes = {'Transformers': 'red', 'Classical ML': 'blue', 'DL': 'pink'}
+    tasks_markers = {'Transformers': 'o', 'Classical ML': 's', 'DL': '*'}
+    marker_size = {'Transformers': 5.5, 'Classical ML': 5.5, 'DL': 10}
+    fig, axs = plt.subplots(nrows, ncols, figsize=(width, height))
+
+    if comparable_only:
+        fig_name = f'{fig_name}_honest'
+
+    # starting plotting
+    cur_row = 0
+    cur_col = 0
+    to_next_row = False
+    for ml_task, performance in transformers.items():  # loop over classification and regression tasks
+        if ml_task == 'classification':
+            ylabel = 'ROC-AUC'
+            direction = '(↑)'
+        else:
+            ylabel = 'RMSE'
+            direction = '(↓)'
+
+        transformers_df = performance[0]
+        ml_df = ml[ml_task][0]
+        dl_df = dl[ml_task][0]
+        models_var = pd.concat([performance[1], ml[ml_task][1], dl[ml_task][1]], axis=0)
+
+        # Unifying the dataset names. This is repeated below for the melted df.
+        models_var.columns = [ds.split('(')[0] for ds in models_var.columns]
+
+        category_transformers = {transformer: 'Transformers' for transformer in transformers_df.index}
+        category_ml = {ml_model: 'Classical ML' for ml_model in ml_df.index}
+        category_dl = {dl_model: 'DL' for dl_model in dl_df.index}
+        categories = {**category_transformers, **category_ml, **category_dl}
+
+
+        # loop over datasets in each category. Last column is the categorical 'source_transformer'
+        for transformer_model in transformers_df['source_transformer'].unique():
+
+            ax, cur_row, cur_col, to_next_row = process_ax(nrows, ncols, cur_row, cur_col, to_next_row, axs, ylabel)
+            if ml_task == 'regression' and cur_row != nrows-1:
+                ax.remove()
+                to_next_row = True
+                ax, cur_row, cur_col, to_next_row = process_ax(nrows, ncols, cur_row, cur_col, to_next_row, axs, ylabel)
+
+            # extract the values for the corresponding dataset
+            transformers_ds = transformers_df[transformers_df['source_transformer'] == transformer_model]
+            ml_ds = ml_df[ml_df['source_transformer'] == transformer_model]
+            dl_ds = dl_df[dl_df['source_transformer'] == transformer_model]
+
+            # creat a dataframe with the selected columns from the different dataframes and prefix the col name with the
+            # model category it came from
+            #model_categories = [f'Transformers {ds_name}', f'ML {ds_name}', f'DL {ds_name}']
+            df = pd.concat([transformers_ds, ml_ds, dl_ds], axis=0).dropna(axis=1).drop('source_transformer', axis=1)
+
+            if len(df) < 2:
+                continue
+
+            df = df.melt(var_name='datasets', value_name='metric', ignore_index=False)
+            df['datasets'] = [ds.split('(')[0] for ds in df['datasets']]
+
+            # The 'dodge' argument seperates the points from each model alongside the x-axis. When there are more than
+            # two models, this feature makes the plot's visibility better.
+            dodge = True
+
+            # plot each dataset in a separate column
+            sns.stripplot(data=df, x='datasets', y='metric', hue=[categories[model_name]
+                                                                  for model_name in df.index],
+                          ax=ax, edgecolor='black', linewidth=0.3, jitter=0.3, dodge=dodge,
+                          palette=tasks_palettes)
+
+            offset_shift = 0
+            for coll_idx, collection in enumerate(ax.collections):
+                offsets = collection.get_offsets()
+                for off_idx, (x, y) in enumerate(offsets):
+                    x_idx = list(offsets[:, 0]).index(x)
+                    df_idx = x_idx + offset_shift + coll_idx
+                    data_info = df.iloc[df_idx]
+                    model = data_info.name
+                    category = categories[model]
+                    ax.plot([x, x], [y, y], marker=tasks_markers[category], color=tasks_palettes[category],
+                            markersize=marker_size[category], zorder=9)
+                    if model in models_var.index:
+                        var_val = float(models_var.loc[model][data_info.datasets])
+                        ax.plot([x, x], [y - var_val, y + var_val], color='grey', linestyle='-', zorder=10, alpha=0.6)
+
+                        horizontal_length = 0.02  # Length of the horizontal lines
+                        ax.plot([x - horizontal_length, x + horizontal_length], [y - var_val, y - var_val],
+                                color='grey', linestyle='-', zorder=10, alpha=0.6)
+                        ax.plot([x - horizontal_length, x + horizontal_length], [y + var_val, y + var_val],
+                                color='grey', linestyle='-', zorder=10, alpha=0.6)
+                offset_shift += len(offsets) - 1
+            ax.set_title(f'{transformer_model}  {direction}', fontsize=16)
+            ax.set_xlabel(None)
+            if transformer_model in models_var.index:
+                var_method = models_var.loc[transformer_model]["method"].upper()
+                ax.set_ylabel(f'{ylabel}$\pm${var_method}', fontsize=16)
+            elif ml_task == 'regression' and transformer_model == 'MolBERT':
+                # MolBERT is a special case cuz the auther fine-tuned the model with two techniques, and we selected
+                # only the best one, which is now included in the name of the 'transformer_model'. It's not worth it to
+                # automate something for this special case. So, we hard-code it.
+                var_method = 'SD'
+                ax.set_ylabel(f'{ylabel}$\pm${var_method}', fontsize=16)
+            else:
+                ax.set_ylabel(ylabel, fontsize=16)
+            ax.legend().set_visible(False)
+
+    legend = [Line2D([0], [0], marker=tasks_markers[mod], color=mark, label=mod, lw=0, markersize=marker_size[mod])
+              for mod, mark in tasks_palettes.items()]
+    fig.legend(handles=legend, loc='center right', fontsize=16, bbox_to_anchor=(0.9, 0.48))
+
+    # adjust empty spaces around the figure
+    plt.subplots_adjust(right=0.95, left=0.05, bottom=0.05, top=0.9, hspace=0.3, wspace=0.3)
+
+    # Figure title
+    fig.suptitle(title, fontsize=20)
+
+    plt.savefig(os.path.join(data_path, f'{fig_name}_per_model.png'), dpi=600, bbox_inches='tight')
+
+    plt.show()
 
 
 def plot_performance_ranges(transformers: dict,
@@ -423,4 +582,4 @@ def plot_performance_by_representation_or_objectives(data_path: str,
     plt.subplots_adjust(top=top, bottom=bottom, left=left, right=right, hspace=hspace, wspace=wspace)
     if fig_name is not None:
         plt.suptitle(fig_name, fontsize=20)
-    plt.savefig(os.path.join(data_path, f'{model_name.lower()}_{png_name}.png'))
+    plt.savefig(os.path.join(data_path, f'{model_name.lower()}_{png_name}.png'), dpi=600)

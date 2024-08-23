@@ -1,7 +1,7 @@
 model,model_params(M),embed_params (K),all_params(M)
 ST,7.0,,
 Mol-BERT,7.0,3998.0,11.0
-Transformer_CNN,22.0,34.0,22.0
+Transformer-CNN,22.0,34.0,22.0
 Chen et al,25.0,26.0,25.0
 RT,25.0,130.0,25.0
 MolFormer-Small,43.0,1814.0,44.0

@@ -1,0 +1,5 @@
+Transformer_model,model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓),method
+MAT,ECFP + SVM,0.054,0.077,,sd
+MAT,ECFP + RF,0.073,0.097,,sd
+MolBERT,RDKit PhysChem descriptors + SVM,0.08,0.45,0.04,sd
+MolBERT,ECFP + SVM,0.06,0.38,0.03,sd

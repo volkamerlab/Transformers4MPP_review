@@ -1,0 +1,26 @@
+model,data_size(M)
+ST,0.9
+Mol-BERT,4
+Transformer-CNN,1.8
+Chen et al_C,2
+Chen et al_CP,103
+Chen et al_CPZ,775
+RT,1.4
+MolFormer-Small,100
+ChemBERTa-2_1,5
+ChemBERTa-2_2,10
+ChemBERTa-2_3,77
+K-BERT,1.8
+ChemBERTa_1,0.1
+ChemBERTa_2,0.25
+ChemBERTa_3,2
+ChemBERTa_4,10
+ChemFormer,100
+SELFormer-Lite,2
+SMILES-BERT,19
+X-Mol,1100
+MolBERT,1.6
+MolFormer-XL,1100
+SELFormer,2
+MAT,2
+ChemFormer-Large,19

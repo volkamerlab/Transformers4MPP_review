@@ -1,0 +1,3 @@
+model_name,ESOL(↓),FreeSolv(↓),Lipophilicity(↓),method
+MAT,0.022,0.046,,sd
+MolBERT + NN (fine-tune),0.04,0.33,0.03,sd
